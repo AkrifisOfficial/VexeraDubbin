@@ -12,29 +12,12 @@
             {
                 "id": 1,
                 "title": "Рюмен Сукуна",
-                "url": "https://vk.com/video-12345678_45678901"
+                "vk_url": "https://vk.com/video-12345678_45678901"
             },
             {
                 "id": 2,
-                "title": "Для себя",
-                "url": "https://vk.com/video-12345678_98765432"
-            }
-        ]
-    },
-    {
-        "id": 2,
-        "title": "Человек-бензопила",
-        "cover": "https://sun9-45.userapi.com/impg/.../image.jpg",
-        "description": "Дэнджи - молодой парень, живущий в нищете...",
-        "year": "2022",
-        "status": "Завершен",
-        "rating": "4.8",
-        "genres": ["Сёнэн", "Ужасы"],
-        "episodes": [
-            {
-                "id": 1,
-                "title": "Собака и бензопила",
-                "url": "https://vk.com/video-12345678_11122233"
+                "title": "Для себя", 
+                "vk_url": "https://vk.com/video-12345678_98765432"
             }
         ]
     }
