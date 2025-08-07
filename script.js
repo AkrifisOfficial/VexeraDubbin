@@ -45,30 +45,88 @@ async function initApp() {
 }
 
 // Загрузка данных
-async function loadData() {
-    try {
-        const response = await fetch('data.json');
-        const data = await response.json();
+    async function loadData() {
+        try {
+            const response = await fetch('data.json');
+            return await response.json();
+        } catch (error) {
+            console.error("Ошибка загрузки данных:", error);
+            return [];
+        }
+    }
+
+    // Отображение списка аниме
+    async function renderAnime() {
+        const data = await loadData();
+        animeList.innerHTML = '';
         
-        // Обработка данных для совместимости (старый и новый формат)
-        allAnimeData = data.map(anime => ({
-            ...anime,
-            episodes: anime.episodes.map(episode => {
-                // Если есть vk_url - парсим из него ID
-                if (episode.vk_url) {
-                    const urlParts = episode.vk_url.match(/video-(\d+)_(\d+)/);
-                    if (urlParts) {
-                        return {
-                            ...episode,
-                            vk_owner_id: urlParts[1],
-                            vk_video_id: urlParts[2]
-                        };
-                    }
-                }
-                // Иначе используем старый формат
-                return episode;
-            })
-        }));
+        data.forEach(anime => {
+            const card = document.createElement('div');
+            card.className = 'anime-card';
+            card.innerHTML = 
+                <img src="${anime.cover}" alt="${anime.title}">
+                <h3>${anime.title}</h3>
+                <p>${anime.rating} ★</p>
+            ;
+            
+            card.addEventListener('click', () => showAnime(anime));
+            animeList.appendChild(card);
+        });
+    }
+
+    // Показать плеер с аниме
+    function showAnime(anime) {
+        animeList.style.display = 'none';
+        playerSection.style.display = 'block';
+        
+        // Отображение информации об аниме
+        document.getElementById('anime-title').textContent = anime.title;
+        document.getElementById('anime-cover').src = anime.cover;
+        document.getElementById('anime-description').textContent = anime.description;
+        
+        // Отображение списка серий
+        const episodesList = document.getElementById('episodes-list');
+        episodesList.innerHTML = '';
+        
+        anime.episodes.forEach(episode => {
+            const episodeBtn = document.createElement('button');
+            episodeBtn.className = 'episode-btn';
+            episodeBtn.textContent = episode.title;
+            episodeBtn.addEventListener('click', () => playEpisode(episode));
+            episodesList.appendChild(episodeBtn);
+        });
+    }
+33
+    // Воспроизведение эпизода
+    function playEpisode(episode) {
+        if (!episode.vk_url) {
+            console.error("Отсутствует URL видео");
+            return;
+        }
+        
+        // Парсим URL видео
+        const urlParts = episode.vk_url.match(/video-(\d+)_(\d+)/);
+        if (!urlParts) {
+            console.error("Неверный формат URL видео");
+            return;
+        }
+        
+        const ownerId = urlParts[1];
+        const videoId = urlParts[2];
+        
+        // Встраиваем плеер VK
+        videoContainer.innerHTML = 
+            <iframe 
+                src="https://vk.com/video_ext.php?oid=${ownerId}&id=${videoId}"
+                frameborder="0" 
+                allowfullscreen
+            ></iframe>
+        ;
+    }
+
+    // Инициализация
+    renderAnime();
+});
         
         featuredAnimeData = [...allAnimeData].sort((a, b) => b.rating - a.rating).slice(0, 5);
         
