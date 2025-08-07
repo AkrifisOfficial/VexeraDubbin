@@ -4,6 +4,10 @@
     "title": "test",
     "description": "Описание аниме...",
     "image": "https://ссылка/на/постер.jpg",
+    "year": "2013",
+    "status": "Завершен",
+    "rating": "4.9",
+    "genres": ["Сёнэн", "Драма", "Фэнтези"],
     "episodes": [
       {
         "number": 1,
