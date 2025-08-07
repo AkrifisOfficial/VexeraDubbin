@@ -1,24 +1,24 @@
-[
+{
+  "anime_list": [
     {
-        "id": 1,
-        "title": "Магическая битва",
-        "cover": "https://sun9-36.userapi.com/impg/.../image.jpg",
-        "description": "Юдзи Итадори - школьник с невероятной физической силой...",
-        "year": "2020",
-        "status": "Онгоинг",
-        "rating": "4.9",
-        "genres": ["Сёнэн", "Боевик"],
-        "episodes": [
-            {
-                "id": 1,
-                "title": "Рюмен Сукуна",
-                "vk_url": "https://vk.com/video-12345678_45678901"
-            },
-            {
-                "id": 2,
-                "title": "Для себя", 
-                "vk_url": "https://vk.com/video-12345678_98765432"
-            }
-        ]
-    }
-]
+      "id": 1,
+      "title": "Наруто",
+      "description": "История о юном ниндзя Наруто Узумаки",
+      "poster": "https://example.com/naruto.jpg",
+      "episodes": [
+        {
+          "number": 1,
+          "title": "Прибытие в Коноху",
+          "video_url": "https://vk.com/video-231399388_456239017",
+          "vexera_dubbing": true
+        },
+        {
+          "number": 2,
+          "title": "Первое задание",
+          "video_url": "https://example.com/naruto_2.mp4",
+          "vexera_dubbing": true
+        }
+      ]
+    },
+    {
+      
