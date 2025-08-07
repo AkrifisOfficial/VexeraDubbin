@@ -3,29 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VexeraDubbing - Аниме онлайн</title>
+    <title>VexeraDubbing - Аниме плеер</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
 </head>
 <body>
-    <header>
-        <h1>VexeraDubbing</h1>
-        <div id="last-update"></div>
-    </header>
-    
-    <main>
-        <div id="anime-container"></div>
-        <div id="episode-modal" class="modal hidden">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <div id="episode-list"></div>
+    <!-- Главный экран -->
+    <div id="app">
+        <!-- Шапка -->
+        <header>
+            <div class="header-content">
+                <div class="logo" onclick="showHome()">
+                    <i class="fas fa-play-circle"></i>
+                    <span>VexeraDubbing</span>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Поиск аниме...">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-controls">
+                    <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <button id="history-btn" title="История просмотра"><i class="fas fa-history"></i></button>
+                </div>
             </div>
-        </div>
-    </main>
-    
-    <footer>
-        <p>Обновление данных происходит автоматически каждые 5 минут</p>
-    </footer>
-    
+        </header>
+        
+        <!-- Основной контент -->
+        <main>
+            <!-- Главная страница -->
+            <section id="home-page">
+                <div class="section-header">
+                    <h2>Популярные аниме</h2>
+                    <div class="view-toggle">
+                        <button class="view-option active" data-view="grid"><i class="fas fa-th"></i></button>
+                        <button class="view-option" data-view="list"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+                
+                <div id="featured-anime" class="anime-grid">
+                    <!-- Популярные аниме загрузятся через JS -->
+                </div>
+                
+                <div class="section-header">
+                    <h2>Новые серии</h2>
+                </div>
+                
+                <div id="new-episodes" class="episodes-list">
+                    <!-- Новые серии загрузятся через JS -->
+                </div>
+                
+                <div class="section-header">
+                    <h2>Все аниме</h2>
+                </div>
+                
+                <div id="all-anime" class="anime-grid">
+                    <!-- Все аниме загрузятся через JS -->
+                </div>
+            </section>
+            
+            <!-- Страница аниме -->
+            <section id="anime-page" class="hidden">
+                <div class="anime-header">
+                    <button class="back-btn" onclick="showHome()">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                    <h1 id="anime-title"></h1>
+                    <div id="anime-meta"></div>
+                </div>
+                
+                <div class="anime-content">
+                    <div class="anime-poster">
+                        <img id="anime-cover" src="" alt="Обложка аниме">
+                        <div class="anime-info">
+                            <div class="info-item"><i class="fas fa-calendar"></i> <span id="anime-year"></span></div>
+                            <div class="info-item"><i class="fas fa-film"></i> <span id="anime-status"></span></div>
+                            <div class="info-item"><i class="fas fa-star"></i> <span id="anime-rating"></span></div>
+                            <div class="info-item"><i class="fas fa-tags"></i> <span id="anime-genres"></span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="anime-details">
+                        <div class="anime-description">
+                            <h3>Описание</h3>
+                            <p id="anime-description"></p>
+                        </div>
+                        
+                        <div class="player-section">
+                            <div id="player-container">
+                                <div id="video-placeholder">
+                                    <i class="fas fa-play-circle"></i>
+                                    <p>Выберите серию для просмотра</p>
+                                </div>
+                            </div>
+                            
+                            <div class="player-controls">
+                                <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+                                <button id="play-pause-btn"><i class="fas fa-play"></i></button>
+                                <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+                                <div class="volume-control">
+                                    <button id="mute-btn"><i class="fas fa-volume-up"></i></button>
+                                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+                                </div>
+                                <button id="fullscreen-btn"><i class="fas fa-expand"></i></button>
+                            </div>
+                            
+                            <div class="episode-selector">
+                                <h3>Серии:</h3>
+                                <div id="episodes-scroll">
+                                    <div id="episodes-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="anime-comments">
+                    <h3><i class="fas fa-comments"></i> Комментарии</h3>
+                    <div id="vk-comments"></div>
+                </div>
+            </section>
+            
+            <!-- Страница истории -->
+            <section id="history-page" class="hidden">
+                <div class="history-header">
+                    <button class="back-btn" onclick="showHome()">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                    <h1>История просмотра</h1>
+                </div>
+                
+                <div id="history-list">
+                    <!-- История будет загружена через JS -->
+                </div>
+            </section>
+        </main>
+        
+        <!-- Подвал -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>VexeraDubbing</h4>
+                    <p>Лучший плеер для просмотра аниме с озвучкой от VexeraDubbing</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Навигация</h4>
+                    <ul>
+                        <li><a href="#" onclick="showHome()">Главная</a></li>
+                        <li><a href="#">Популярное</a></li>
+                        <li><a href="#">Новые серии</a></li>
+                        <li><a href="#" id="history-link">История</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <ul>
+                        <li><a href="https://vk.com/vexeradubbing" target="_blank"><i class="fab fa-vk"></i> VK</a></li>
+                        <li><a href="https://t.me/vexeradubbing" target="_blank"><i class="fab fa-telegram"></i> Telegram</a></li>
+                        <li><a href="mailto:contact@vexeradubbing.ru"><i class="fas fa-envelope"></i> Email</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 VexeraDubbing Player. Все права защищены.</p>
+            </div>
+        </footer>
+    </div>
+
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
