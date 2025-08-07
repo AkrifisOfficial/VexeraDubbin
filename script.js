@@ -1,6 +1,6 @@
 // Конфигурация
-const GITHUB_RAW_URL = "https://raw.githubusercontent.com/ваш-логин/ваш-репозиторий/ветка/anime.json";
-const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 минут
+const GITHUB_RAW_URL = "https://raw.githubusercontent.com/AkrifisOfficial/VexeraDubbin/main/anime.json";
+const UPDATE_INTERVAL = 1 * 60 * 1000; // 5 минут
 let animeData = [];
 
 // DOM элементы
