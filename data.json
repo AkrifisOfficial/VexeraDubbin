@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": "test",
+    "description": "Описание аниме...",
+    "image": "https://ссылка/на/постер.jpg",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Название серии",
+        "duration": 24,
+        "video_url": "https://vk.com/video-231399388_456239017"
+      }
+    ]
+  }
+]
