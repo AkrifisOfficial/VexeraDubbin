@@ -1,39 +1,171 @@
-// Воспроизведение эпизода (новая версия)
+// DOM элементы
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const themeToggle = document.getElementById('theme-toggle');
+const historyBtn = document.getElementById('history-btn');
+const historyLink = document.getElementById('history-link');
+const homePage = document.getElementById('home-page');
+const animePage = document.getElementById('anime-page');
+const historyPage = document.getElementById('history-page');
+const featuredAnime = document.getElementById('featured-anime');
+const newEpisodes = document.getElementById('new-episodes');
+const allAnime = document.getElementById('all-anime');
+const animeTitle = document.getElementById('anime-title');
+const animeCover = document.getElementById('anime-cover');
+const animeDescription = document.getElementById('anime-description');
+const animeYear = document.getElementById('anime-year');
+const animeStatus = document.getElementById('anime-status');
+const animeRating = document.getElementById('anime-rating');
+const animeGenres = document.getElementById('anime-genres');
+const episodesContainer = document.getElementById('episodes-container');
+const videoPlaceholder = document.getElementById('video-placeholder');
+const historyList = document.getElementById('history-list');
+const viewOptions = document.querySelectorAll('.view-option');
+const prevBtn = document.getElementById('prev-btn');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const nextBtn = document.getElementById('next-btn');
+const muteBtn = document.getElementById('mute-btn');
+const volumeSlider = document.getElementById('volume-slider');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+// Переменные состояния
+let currentAnime = null;
+let currentEpisode = null;
+let allAnimeData = [];
+let featuredAnimeData = [];
+let newEpisodesData = [];
+let viewMode = 'grid';
+
+// Инициализация приложения
+async function initApp() {
+    await loadData();
+    applySavedTheme();
+    setupEventListeners();
+    renderHomePage();
+}
+
+// Загрузка данных
+async function loadData() {
+    try {
+        const response = await fetch('data.json');
+        const data = await response.json();
+        
+        // Обработка данных для совместимости (старый и новый формат)
+        allAnimeData = data.map(anime => ({
+            ...anime,
+            episodes: anime.episodes.map(episode => {
+                // Если есть vk_url - парсим из него ID
+                if (episode.vk_url) {
+                    const urlParts = episode.vk_url.match(/video-(\d+)_(\d+)/);
+                    if (urlParts) {
+                        return {
+                            ...episode,
+                            vk_owner_id: urlParts[1],
+                            vk_video_id: urlParts[2]
+                        };
+                    }
+                }
+                // Иначе используем старый формат
+                return episode;
+            })
+        }));
+        
+        featuredAnimeData = [...allAnimeData].sort((a, b) => b.rating - a.rating).slice(0, 5);
+        
+        newEpisodesData = [];
+        allAnimeData.forEach(anime => {
+            if (anime.episodes.length > 0) {
+                const lastEpisode = anime.episodes[anime.episodes.length - 1];
+                newEpisodesData.push({
+                    animeId: anime.id,
+                    animeTitle: anime.title,
+                    cover: anime.cover,
+                    episodeId: lastEpisode.id,
+                    title: `Серия ${lastEpisode.id}: ${lastEpisode.title}`,
+                    vk_owner_id: lastEpisode.vk_owner_id,
+                    vk_video_id: lastEpisode.vk_video_id
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        showError('Ошибка загрузки данных. Пожалуйста, попробуйте позже.');
+    }
+}
+
+// Воспроизведение эпизода (универсальная версия)
 function playEpisode(episode) {
+    if (!episode.vk_owner_id || !episode.vk_video_id) {
+        console.error("Отсутствуют данные видео");
+        return;
+    }
+
     currentEpisode = episode;
     videoPlaceholder.style.display = 'none';
     
-    // Парсим URL видео VK
-    const urlParts = episode.vk_url.match(/video-(\d+)_(\d+)/);
-    if (!urlParts || urlParts.length < 3) {
-        console.error("Неверный формат URL видео VK");
-        return;
-    }
+    // Очистка предыдущего плеера
+    const playerContainer = document.getElementById('player-container');
+    playerContainer.innerHTML = '';
     
-    const owner_id = urlParts[1];
-    const video_id = urlParts[2];
-    
-    // Удаляем предыдущий плеер
-    const oldPlayer = document.getElementById('video-player');
-    if (oldPlayer) oldPlayer.remove();
-    
-    // Создаём iframe плеера VK
+    // Создание iframe для VK видео
     const iframe = document.createElement('iframe');
     iframe.id = 'video-player';
-    iframe.src = `https://vk.com/video_ext.php?oid=${owner_id}&id=${video_id}&hash=123abc`;
-    iframe.allowFullscreen = true;
+    iframe.src = `https://vk.com/video_ext.php?oid=${episode.vk_owner_id}&id=${episode.vk_video_id}&hash=123abc`;
+    iframe.setAttribute('allowfullscreen', 'true');
     iframe.setAttribute('frameborder', '0');
+    playerContainer.appendChild(iframe);
     
-    document.getElementById('player-container').appendChild(iframe);
+    // Загрузка комментариев
     loadVKComments(episode);
+    
+    // Добавление в историю
     addToHistory(currentAnime, episode);
+    
+    // Прокрутка к плееру
+    document.querySelector('.player-section').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
 }
 
-// Загрузка комментариев VK (обновлённая)
+// Загрузка комментариев VK
 function loadVKComments(episode) {
-    const urlParts = episode.vk_url.match(/video-(\d+)_(\d+)/);
-    if (!urlParts) return;
+    const commentsContainer = document.getElementById('vk-comments');
+    commentsContainer.innerHTML = '<div class="loading">Загрузка комментариев...</div>';
     
-    const pageId = `video_${urlParts[1]}_${urlParts[2]}`;
-    initVKWidget(pageId);
+    const pageId = `video_${episode.vk_owner_id}_${episode.vk_video_id}`;
+    
+    if (typeof VK !== 'undefined' && VK.Widgets) {
+        initVKWidget(pageId);
+    } else {
+        const intervalId = setInterval(() => {
+            if (typeof VK !== 'undefined' && VK.Widgets) {
+                clearInterval(intervalId);
+                initVKWidget(pageId);
+            }
+        }, 500);
+    }
 }
+
+// Инициализация виджета комментариев VK
+function initVKWidget(pageId) {
+    const commentsContainer = document.getElementById('vk-comments');
+    try {
+        VK.Widgets.Comments('vk-comments', {
+            limit: 20,
+            attach: false,
+            autoPublish: 0,
+            pageUrl: `https://vk.com/video${pageId.split('_').slice(1).join('_')}`,
+            pageId: pageId
+        }, pageId.split('_')[2]);
+    } catch (e) {
+        commentsContainer.innerHTML = '<div class="error">Не удалось загрузить комментарии</div>';
+        console.error('Ошибка VK виджета:', e);
+    }
+}
+
+// Остальные функции остаются без изменений
+// (showAnimePage, renderEpisodes, addToHistory, searchAnime и т.д.)
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', initApp);
